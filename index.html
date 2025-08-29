@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> The Travel Hub Clone with Auth</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5fa;
+            color: #333;
+        }
+        /* Custom styles for the search form's active tab */
+        .tab-button.active {
+            border-bottom: 3px solid #0050c8;
+            color: #0050c8;
+            font-weight: 600;
+        }
+        /* Style for active navbar link */
+        .nav-link.active {
+            font-weight: 700;
+            color: white;
+            position: relative;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 9999px;
+        }
+        /* Add a subtle inset shadow to input fields for a better look */
+        .form-input-field {
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        /* Style for the login modal */
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+    <!-- Header Section -->
+    <header class="bg-[#003c9d] text-white p-4">
+        <div class="container mx-auto flex items-center justify-between flex-wrap">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/>
+                </svg>
+                <span class="text-xl font-bold">The Travel Hub </span>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-grow hidden md:flex items-center justify-center space-x-8 lg:space-x-12">
+                <!-- Data-target attributes link to content sections below -->
+                <a href="#" class="nav-link active" data-target="hero-section">Flights</a>
+                <a href="#" class="nav-link" data-target="hotels-section">Hotels</a>
+                <a href="#" class="nav-link" data-target="homestays-section">Homestays</a>
+                <a href="#" class="nav-link" data-target="holiday-packages-section">Holiday Packages</a>
+                <a href="#" class="nav-link" data-target="trains-section">Trains</a>
+                <a href="#" class="nav-link" data-target="buses-section">Buses</a>
+                <a href="#" class="nav-link" data-target="cabs-section">Cabs</a>
+            </nav>
+
+            <!-- User Actions -->
+            <div class="flex items-center space-x-4">
+                <!-- Buttons for Login/Logout and displaying user email -->
+                <span id="user-info" class="text-white hidden"></span>
+                <button id="authBtn" class="bg-white text-blue-800 font-semibold py-2 px-4 rounded-full shadow-md hover:bg-gray-100 transition">
+                    Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <div id="content-container">
+        <!-- Hero Section with Search Form (Now a dedicated content section) -->
+        <section id="hero-section" class="content-section relative py-12 md:py-24" style="background-image: url('https://placehold.co/1920x600/3673c6/ffffff?text=Travel+the+world+with+us'); background-size: cover; background-position: center; min-height: 600px;">
+            <div class="absolute inset-0 bg-black opacity-30"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <h1 class="text-white text-3xl md:text-5xl lg:text-6xl font-extrabold text-center mb-6 drop-shadow-lg">
+                    Your journey starts here.
+                </h1>
+                <p class="text-white text-base md:text-xl lg:text-2xl text-center mb-10 drop-shadow-md">
+                    Book flights, hotels, holidays and more.
+                </p>
+
+                <!-- Search Form Container -->
+                <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-gray-200 mb-6">
+                        <button class="tab-button active flex items-center space-x-2 py-3 px-6 text-gray-600 transition duration-300 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z"/></svg>
+                            <span>Flights</span>
+                        </button>
+                        <button class="tab-button flex items-center space-x-2 py-3 px-6 text-gray-600 transition duration-300 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l4-4 4 4 4-4 4 4V4a2 2 0 00-2-2H5zm14 2H5v14l3-3 4 4 4-4 3 3V4z" clip-rule="evenodd"/></svg>
+                            <span>Hotels</span>
+                        </button>
+                        <button class="tab-button flex items-center space-x-2 py-3 px-6 text-gray-600 transition duration-300 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm8 12v-2h2v2h-2zm0-4h2V8h-2v4zm-4 4v-2h2v2H8zm0-4h2V8H8v4z" clip-rule="evenodd"/></svg>
+                            <span>Cabs</span>
+                        </button>
+                    </div>
+
+                    <!-- Flight Search Form (Initially visible) -->
+                    <div id="flight-form" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="form-group">
+                                <label class="block text-gray-500 text-sm font-medium mb-1" for="origin">From</label>
+                                <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="origin" type="text" placeholder="Origin City" />
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-gray-500 text-sm font-medium mb-1" for="destination">To</label>
+                                <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="destination" type="text" placeholder="Destination City" />
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-gray-500 text-sm font-medium mb-1" for="departure-date">Departure</label>
+                                <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="departure-date" type="date" />
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-gray-500 text-sm font-medium mb-1" for="return-date">Return</label>
+                                <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="return-date" type="date" />
+                            </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <button class="bg-[#e43336] text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg hover:bg-[#c62828] transition duration-300 ease-in-out">
+                                Search Flights
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other content sections (initially hidden) -->
+        <section id="hotels-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Hotels</h2>
+            <p class="mt-4 text-gray-600">This is the Hotels page. Content for hotel searches will go here.</p>
+             <!-- Hotel Search Form -->
+            <div id="hotel-form" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 mt-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="form-group">
+                        <label class="block text-gray-500 text-sm font-medium mb-1" for="location">Location</label>
+                        <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="location" type="text" placeholder="Enter city or hotel name" />
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-500 text-sm font-medium mb-1" for="check-in">Check-in</label>
+                        <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="check-in" type="date" />
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-500 text-sm font-medium mb-1" for="check-out">Check-out</label>
+                        <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="check-out" type="date" />
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button class="bg-[#e43336] text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg hover:bg-[#c62828] transition duration-300 ease-in-out">
+                        Search Hotels
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="homestays-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Homestays</h2>
+            <p class="mt-4 text-gray-600">This is the Homestays page. Explore unique and cozy places to stay.</p>
+        </section>
+
+        <section id="holiday-packages-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Holiday Packages</h2>
+            <p class="mt-4 text-gray-600">This is the Holiday Packages page. Find the perfect trip with all-inclusive deals.</p>
+        </section>
+
+        <section id="trains-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Trains</h2>
+            <p class="mt-4 text-gray-600">This is the Trains page. Book your train tickets here.</p>
+        </section>
+
+        <section id="buses-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Buses</h2>
+            <p class="mt-4 text-gray-600">This is the Buses page. Find and book bus tickets for your journey.</p>
+        </section>
+
+        <section id="cabs-section" class="content-section hidden container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Cabs</h2>
+            <p class="mt-4 text-gray-600">This is the Cabs page. Easily book a cab for local or outstation travel.</p>
+             <!-- Cab Search Form -->
+            <div id="cab-form" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 mt-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-gray-500 text-sm font-medium mb-1" for="pickup">Pickup Location</label>
+                        <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="pickup" type="text" placeholder="Enter pickup location" />
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-500 text-sm font-medium mb-1" for="dropoff">Drop-off Location</label>
+                        <input class="form-input-field w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" id="dropoff" type="text" placeholder="Enter drop-off location" />
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button class="bg-[#e43336] text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg hover:bg-[#c62828] transition duration-300 ease-in-out">
+                        Search Cabs
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Popular Destinations Section -->
+    <section class="container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Popular Destinations</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Destination Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-2">
+                <img src="paris.jpg" alt="Paris" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">Paris</h3>
+                    <p class="text-gray-600 text-sm">Experience the city of love with its iconic landmarks and romantic charm.</p>
+                </div>
+            </div>
+            <!-- Destination Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-">
+                <img src="tokyo.jpg" alt="Tokyo" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">Tokyo</h3>
+                    <p class="text-gray-600 text-sm">Explore the vibrant culture and futuristic cityscapes of Japan's capital.</p>
+                </div>
+            </div>
+            <!-- Destination Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-2">
+                <img src="new york.avif" alt="New York" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">New York</h3>
+                    <p class="text-gray-600 text-sm">Discover the city that never sleeps, from Times Square to Central Park.</p>
+                </div>
+            </div>
+            <!-- Destination Card 4 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-2">
+                <img src="london.jpg" alt="London" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-2 text-gray-800">London</h3>
+                    <p class="text-gray-600 text-sm">Visit the historical sites and modern marvels of this bustling metropolis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 MakeMyTrip Clone. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="hover:text-gray-400">About Us</a>
+                <a href="#" class="hover:text-gray-400">Contact</a>
+                <a href="#" class="hover:text-gray-400">Privacy Policy</a>
+                <a href="#" class="hover:text-gray-400">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login/Signup Modal -->
+    <div id="authModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-xl shadow-lg p-8 w-11/12 md:w-1/2 lg:w-1/3 relative">
+            <!-- Close Button -->
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            <h2 id="modal-title" class="text-2xl font-bold text-center mb-6 text-gray-800">Login to your account</h2>
+            <form id="auth-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="auth-email">Email</label>
+                    <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="auth-email" type="email" placeholder="Enter your email" />
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="auth-password">Password</label>
+                    <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="auth-password" type="password" placeholder="Enter your password" />
+                </div>
+                <p id="error-message" class="text-red-500 text-center mb-4 hidden"></p>
+                <div class="flex items-center justify-between mb-4">
+                    <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
+                        Forgot Password?
+                    </a>
+                </div>
+                <div class="flex flex-col space-y-4">
+                    <button id="loginBtn" class="bg-[#e43336] hover:bg-[#c62828] text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" type="submit">
+                        Sign In
+                    </button>
+                    <button id="signUpBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-300" type="button">
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Global variables for Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // Replace with your Firebase API Key
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // Replace with your Auth Domain
+            projectId: "YOUR_PROJECT_ID", // Replace with your Project ID
+            storageBucket: "YOUR_PROJECT_ID.appspot.com", // Replace with your Storage Bucket
+            messagingSenderId: "YOUR_SENDER_ID", // Replace with your Sender ID
+            appId: "YOUR_APP_ID" // Replace with your App ID
+        };
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+
+        // UI elements
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const authBtn = document.getElementById('authBtn');
+        const userInfo = document.getElementById('user-info');
+        const authModal = document.getElementById('authModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const loginForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        const loginModalBtn = document.getElementById('loginBtn');
+        const signUpModalBtn = document.getElementById('signUpBtn');
+        const modalTitle = document.getElementById('modal-title');
+        const errorMessage = document.getElementById('error-message');
+
+        // State to track if we're in sign up mode
+        let isSignUpMode = false;
+
+        // Function to show and hide the modal
+        function toggleModal(show) {
+            if (show) {
+                authModal.classList.remove('hidden');
+            } else {
+                authModal.classList.add('hidden');
+                // Clear inputs and messages on close
+                emailInput.value = '';
+                passwordInput.value = '';
+                errorMessage.classList.add('hidden');
+            }
+        }
+
+        // Event listeners
+        // Main navbar functionality (SPA)
+        navLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent default link behavior
+                const targetId = link.dataset.target;
+
+                // Remove active class from all links
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                // Add active class to the clicked link
+                link.classList.add('active');
+
+                // Hide all content sections and show the target one
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // Tab functionality within sections (e.g., Flights, Hotels, Cabs)
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.add('hidden'));
+                button.classList.add('active');
+                const tabId = button.textContent.trim().toLowerCase();
+                const contentId = `${tabId.replace(' ', '-')}-form`;
+                document.getElementById(contentId).classList.remove('hidden');
+            });
+        });
+
+        // Authentication button logic
+        authBtn.addEventListener('click', () => {
+            if (authBtn.textContent.trim() === 'Logout') {
+                signOut(auth).catch(error => {
+                    console.error('Error signing out:', error);
+                });
+            } else {
+                isSignUpMode = false;
+                modalTitle.textContent = 'Login to your account';
+                loginModalBtn.textContent = 'Sign In';
+                signUpModalBtn.textContent = 'Sign Up';
+                toggleModal(true);
+            }
+        });
+
+        // Close modal button
+        closeModalBtn.addEventListener('click', () => toggleModal(false));
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === authModal) {
+                toggleModal(false);
+            }
+        });
+
+        // Toggle between Login and Signup modes
+        signUpModalBtn.addEventListener('click', () => {
+            isSignUpMode = !isSignUpMode;
+            if (isSignUpMode) {
+                modalTitle.textContent = 'Create a new account';
+                loginModalBtn.textContent = 'Sign Up';
+                signUpModalBtn.textContent = 'Switch to Login';
+            } else {
+                modalTitle.textContent = 'Login to your account';
+                loginModalBtn.textContent = 'Sign In';
+                signUpModalBtn.textContent = 'Sign Up';
+            }
+        });
+
+        // Form submission handler
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            errorMessage.classList.add('hidden'); // Hide previous errors
+
+            if (isSignUpMode) {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log('User signed up:', userCredential.user);
+                        toggleModal(false);
+                    })
+                    .catch((error) => {
+                        errorMessage.textContent = error.message;
+                        errorMessage.classList.remove('hidden');
+                    });
+            } else {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log('User logged in:', userCredential.user);
+                        toggleModal(false);
+                    })
+                    .catch((error) => {
+                        errorMessage.textContent = error.message;
+                        errorMessage.classList.remove('hidden');
+                    });
+            }
+        });
+
+        // Auth state listener to update UI
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                userInfo.textContent = `Hello, ${user.email}`;
+                userInfo.classList.remove('hidden');
+                authBtn.textContent = 'Logout';
+                authBtn.classList.remove('bg-white', 'text-blue-800');
+                authBtn.classList.add('bg-red-500', 'text-white');
+            } else {
+                // User is signed out
+                userInfo.classList.add('hidden');
+                authBtn.textContent = 'Login';
+                authBtn.classList.remove('bg-red-500', 'text-white');
+                authBtn.classList.add('bg-white', 'text-blue-800');
+            }
+        });
+    </script>
+</body>
+</html>
